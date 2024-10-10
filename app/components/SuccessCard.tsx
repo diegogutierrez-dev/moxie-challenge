@@ -3,10 +3,10 @@ import Image from 'next/image';
 
 const SuccessCard = () => {
   return (
-    <div className='flex flex-col gap-6 px-16 py-10'>
+    <div className='flex flex-col gap-6 px-16 py-10 items-center'>
       <Image
         className="w-[200px] h-[200px] rounded-full border border-gray-100 object-cover"
-        src="/images/success-image"
+        src="/images/success-image.png"
         alt="Success Logo"
         width={200}
         height={200}

@@ -4,7 +4,7 @@ interface InputProps {
   name: string;
   placeholder: string;
   type: string;
-  label?: string;
+  label: string;
   additionalText?: string;
 }
 
@@ -13,7 +13,7 @@ const Input = ({ name, label, placeholder, type, additionalText }: InputProps) =
 
   return (
     <div className='flex flex-col gap-1 w-full'>
-      {label && <label className='text-sm text-gray-600'>{label}</label>}
+      <label className='text-sm text-gray-600'>{label}</label>
       <div className='flex gap-2'>
         <input
           className='p-3 border border-zinc-400 rounded-2xl self-start grow-[1]'

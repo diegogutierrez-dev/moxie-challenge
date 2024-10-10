@@ -20,11 +20,12 @@ const paymentSchema = z.object({
   cardNumber: z.string().min(16, 'Card number must be 16 digits'),
   expiryDate: z.string().min(5, 'Expiry date must be in MM/YY format'),
   cvv: z.string().min(3, 'CVV must be 3 digits'),
-  billingAddress: z.string().min(1, 'Billing address is required'),
+  billingZip: z.string().min(1, 'Billing address is required'),
   acceptTerms: z.boolean().refine((val) => val, { message: 'You must accept the terms' }),
 });
 
-type FullDataForm = z.infer<typeof personaDataSchema & typeof paymentSchema>;
+const fullFormSchema = personaDataSchema.merge(paymentSchema);
+type FullDataForm = z.infer<typeof fullFormSchema>;
 
 const steps = [
   { label: 'Enter your details below', description: '', schema: personaDataSchema },
@@ -34,8 +35,8 @@ const steps = [
 export default function StepperForm() {
   const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formData, setFormData] = useState<FullDataForm>({} as FullDataForm);
   const isLastStep = step === steps.length;
-  console.log(isLastStep, step === steps.length)
 
   const currentStep = steps[step - 1];
   const isPersonalDataStep = step === 1;
@@ -46,12 +47,17 @@ export default function StepperForm() {
     mode: 'onChange',
   });
 
-  const { handleSubmit, trigger } = methods;
+  const { handleSubmit, trigger, getValues } = methods;
 
-  const handleNext = () => {
-    trigger().then((isValid) => {
-      if (isValid) setStep((prevStep) => prevStep + 1);
-    });
+  const handleNext = async () => {
+    const isValid = await trigger();
+    if (isValid) {
+      setFormData((prevData) => ({
+        ...prevData,
+        ...getValues(),
+      }));
+      setStep((prevStep) => prevStep + 1);
+    }
   };
 
   const handlePrevious = () => {
@@ -59,9 +65,14 @@ export default function StepperForm() {
   };
 
   const onSubmit = (data: FullDataForm) => {
-    console.log('test!')
+    const fullValidationResult = fullFormSchema.safeParse({ ...formData, ...data });
+    if (!fullValidationResult.success) {
+      console.error(fullValidationResult.error);
+      return;
+    }
+
+    console.log('Form submitted successfully:', { ...formData, ...data });
     setIsSubmitted(true);
-    console.log('Form submitted successfully:', data);
   };
 
   return (
@@ -121,11 +132,13 @@ export default function StepperForm() {
                           />
                           <div className='flex gap-2 w-full flex-col md:flex-row'>
                             <Input
+                              label='Expiry Date'
                               name="expiryDate"
                               placeholder="MM/YY"
                               type="text"
                             />
                             <Input
+                              label='CVV'
                               name="cvv"
                               placeholder="CVV"
                               type="text"
@@ -134,6 +147,7 @@ export default function StepperForm() {
                         </div>
 
                         <Input
+                          label='Billing Zip'
                           name="billingZip"
                           placeholder="Billing zip code"
                           type="text"
@@ -154,12 +168,12 @@ export default function StepperForm() {
               </div>
             </div>
           </div>
-          <StepperNavigation
+          {!isSubmitted && <StepperNavigation
             step={step}
             onPrevious={handlePrevious}
             onNext={handleNext}
             isLastStep={isLastStep}
-          />
+          />}
         </div>
       </form>
     </FormProvider>
