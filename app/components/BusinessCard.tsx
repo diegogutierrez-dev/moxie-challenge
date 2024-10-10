@@ -11,6 +11,7 @@ const BusinessCard = () => {
           alt="Gold Spa Logo"
           width={130}
           height={80}
+          unoptimized
         />
         <h1 className="font-bold text-lg">Gold Spa</h1>
       </header>

@@ -10,6 +10,7 @@ const SuccessCard = () => {
         alt="Success Logo"
         width={200}
         height={200}
+        unoptimized
       />
       <h1 className="font-bold text-lg">Your appointment has been booked!</h1>
       <p>A confirmation has been sent to your email address.</p>
